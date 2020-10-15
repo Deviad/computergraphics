@@ -1,0 +1,11 @@
+#root {
+ background-color: red;
+ .test {
+     height: 100px;
+     width: 100px;
+     background-color: yellow;
+     &--something {
+       color: green;     
+     }
+ }   
+}
