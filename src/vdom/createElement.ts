@@ -5,12 +5,13 @@
 */
 const createElement = (
   tagName: string,
-  { attrs = {} as Attributes, children = [] as Elem[] } = {} as Options
+  { attrs = {} as Attributes, events = {}, children = [] as Elem[] } = {} as Options
 ) => {
   return {
     tagName,
-    attrs: attrs,
-    children: children,
+    attrs,
+    events,
+    children,
   };
 };
 

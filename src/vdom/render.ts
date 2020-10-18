@@ -1,6 +1,7 @@
 const renderElem = ({
   tagName,
   attrs,
+  events,
   children,
 }: VNode): HTMLElement | Text => {
   const $el = document.createElement(tagName);
@@ -12,6 +13,11 @@ const renderElem = ({
     const $child = render(child);
     $el.appendChild($child);
   }
+
+  for (const [k, v] of Object.entries(events)) {
+    $el.addEventListener(k, v);
+  }
+
   return $el;
 };
 
