@@ -1,3 +1,4 @@
+// @ts-nocheck
 const renderElem = ({
   tagName,
   attrs,
@@ -15,7 +16,7 @@ const renderElem = ({
   }
 
   for (const [k, v] of Object.entries(events)) {
-    $el.addEventListener(k, v);
+    $el.addEventListener(k, v($el));
   }
 
   return $el;

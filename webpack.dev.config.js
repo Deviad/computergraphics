@@ -4,26 +4,29 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const APP_DIR = path.resolve(__dirname, "src");
 const paths = require("./paths.js");
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const PAGES_DIR = paths.appPublic;
-const fs = require('fs');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const fs = require("fs");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const PAGES = fs
   .readdirSync(PAGES_DIR)
-  .filter(fileName => fileName.endsWith('.html'))
-const host = process.env.HOST || '127.0.0.1';
+  .filter((fileName) => fileName.endsWith(".html"));
+const host = process.env.HOST || "127.0.0.1";
 const sockHost = process.env.WDS_SOCKET_HOST;
 const sockPath = process.env.WDS_SOCKET_PATH; // default: '/sockjs-node'
 const sockPort = process.env.WDS_SOCKET_PORT;
-const isProduction = process.env.NODE_ENV === 'production';  
+const isProduction = process.env.NODE_ENV === "production";
 const plugins = [
   ...PAGES.map(
-    page =>
+    (page) =>
       new HtmlWebpackPlugin({
         template: `${PAGES_DIR}/${page}`,
-        filename: `./${page}`
+        filename: `./${page}`,
       })
   ),
+  new webpack.DefinePlugin({
+    "process.env.ASSET_PATH": JSON.stringify(paths.appPublic),
+  }),
   // new CopyWebpackPlugin({
   //   patterns: [
   //     // Images:
@@ -46,12 +49,10 @@ const plugins = [
   new MiniCssExtractPlugin({
     // Options similar to the same options in webpackOptions.output
     // both options are optional
-    filename: isProduction
-      ? "styles/[name].[hash].css"
-      : "styles/[name].css",
+    filename: isProduction ? "styles/[name].[hash].css" : "styles/[name].css",
     chunkFilename: isProduction
       ? "styles/[name].[chunkhash].css"
-      : "styles/[id].[name].css"
+      : "styles/[id].[name].css",
   }),
   new webpack.HotModuleReplacementPlugin(),
 ];
@@ -74,31 +75,34 @@ module.exports = {
         // For Less - /\.((c|le)ss)$/i,
         test: /\.((c|sa|sc)ss)$/i,
         use: [
-          isProduction ?  MiniCssExtractPlugin.loader : 'style-loader',
+          isProduction ? MiniCssExtractPlugin.loader : "style-loader",
           {
-            loader: 'css-loader',
-            options: { 
-              sourceMap: !isProduction,  
+            loader: "css-loader",
+            options: {
+              sourceMap: !isProduction,
               // url: true,
               // localIdentName: '[local]__[hash:base64:6]',
               importLoaders: 1,
               // minimize: true
-            }
+            },
           },
           // {
           //   loader: 'sass-loader',
           //   options: { sourceMap: !isProduction }
           // },
           {
-            loader: 'postcss-loader',
+            loader: "postcss-loader",
           },
-        ]
+        ],
       },
       {
         test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/i,
-        loader: 'url-loader',
+        loader: "url-loader",
         options: {
           limit: 8192,
+          outputPath: "public/img",
+          publicPath: "public/img",
+          name: "[name].[ext]?[hash]",
         },
       },
     ],

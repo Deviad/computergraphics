@@ -1,29 +1,73 @@
-import { example1 } from "./redux/example1";
-import { example2 } from "./redux/example2";
-import { example3 } from "./redux/example3";
 import { example4 } from "./redux/example4";
 import "./styles/main.css";
+import saloon from "./images/saloon.jpg";
+import cowboy from "./images/yosemite_sam.png";
 import { createElement } from "./vdom/createElement";
-import { diff } from "./vdom/diff";
 import { mount } from "./vdom/mount";
 import { render } from "./vdom/render";
 
+const prepareCss = (object: Record<string, string>) => {
+  let s = "";
+  for (const [k, v] of Object.entries(object)) {
+    s = s + `${k}:${v};`;
+  }
+  return s;
+};
+
+function drawImage(el: HTMLCanvasElement, event: MouseEvent) {
+  console.log("test");
+  const image = new Image();
+  const context = el.getContext("2d");
+  // const imagePath = `${location.protocol}//${location.hostname}:${location.port}/${cowboy}`;
+  image.src = "https://i.imgur.com/LPuU3Ia.png";
+  image.onload = () => {
+    context.clearRect(prevX, prevY, 125, 200);
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const x = event.clientX - rect.left * 8; //x position within the element.
+    const y = event.clientY - rect.top * 2; //y position w
+    prevX = x;
+    prevY = y;
+    context.drawImage(image, x, y, 125, 200);
+    return context;
+  };
+}
+
+// const memoizedComponent = (fn: Function) => {
+//   let state: any = null;
+//   return (...args: any[]) => {
+//     if (state != null) {
+//       return state;
+//     } else {
+//       state = fn;
+//     }
+//     return fn.apply(null, args);
+//   };
+// };
+let prevX: any = null;
+let prevY: any = null;
 const createVapp = (count: number) =>
   createElement("div", {
     attrs: {
       id: "app",
       dataCount: count,
     },
-    events: {
-      [EventName.CLICK]: (event: MouseEvent) => {
-        console.log(event.clientX, event.clientY);
-      },
-    },
     children: [
-      String(count),
-      createElement("img", {
+      createElement("h2", {
+        children: ["Play with Yosemite Sam!"],
+      }),
+      createElement("canvas", {
+        events: {
+          [EventName.MOVE]: (el: HTMLCanvasElement) => (event: MouseEvent) => {
+            drawImage(el, event);
+          },
+        },
         attrs: {
-          src: "https://media0.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif",
+          width: 1000,
+          height: 500,
+          style: prepareCss({
+            background: `url(${saloon})`,
+            "background-size": "contain",
+          }),
         },
         children: [],
       }),
@@ -35,27 +79,24 @@ const $app = render(vApp);
 
 let $rootEl = mount($app, document.getElementById("app"));
 
-setInterval(() => {
-  count++;
-  console.log(count);
-  // if we keep mounting a new component everytime we will see the image blinking.
-  // if this was a form we would loose the focus every time it gets re-mounted.
-  // this is why we need the patching mechanism.
+// setInterval(() => {
+//   count++;
+//   console.log(count);
+//   // if we keep mounting a new component everytime we will see the image blinking.
+//   // if this was a form we would loose the focus every time it gets re-mounted.
+//   // this is why we need the patching mechanism.
 
-  // $rootEl = mount(render(createVapp(count)), $rootEl);
-  
-  const vNewApp = createVapp(count);
-  const patch: (n: HTMLElement | Text) => HTMLElement | Text = diff(
-    vApp,
-    vNewApp
-  );
-  $rootEl = patch($rootEl);
-}, 1000);
+//   // $rootEl = mount(render(createVapp(count)), $rootEl);
+
+//   const vNewApp = createVapp(count);
+//   const patch: (n: HTMLElement | Text) => HTMLElement | Text = diff(
+//     vApp,
+//     vNewApp
+//   );
+//   $rootEl = patch($rootEl);
+// }, 1000);
 
 console.log($app);
-example1();
-example2();
-example3();
 example4();
 
-(module as any).hot.accept();
+// (module as any).hot.accept();
