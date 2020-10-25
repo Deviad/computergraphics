@@ -14,28 +14,16 @@ const prepareCss = (object: Record<string, string>) => {
   return s;
 };
 
-let memoizedImage: any = null;
-
-// function draw() {
-//   var ctx = document.getElementById("canvas").getContext("2d");
-//   var img = new Image();
-//   img.onload = function () {
-//     ctx.drawImage(img, 0, 0);
-//     ctx.beginPath();
-//     ctx.moveTo(30, 96);
-//     ctx.lineTo(70, 66);
-//     ctx.lineTo(103, 76);
-//     ctx.lineTo(170, 15);
-//     ctx.stroke();
-//   };
-//   img.src = "https://mdn.mozillademos.org/files/5395/backdrop.png";
-// }
-
 function drawImage(el: HTMLCanvasElement, event: MouseEvent) {
   console.log("test");
   let image = new Image();
   const context = el.getContext("2d");
   const rect = (event.target as HTMLElement).getBoundingClientRect();
+
+  // TODO: create some logic for allowing dynamic position
+  // when using for example flex to center the canvas.
+  // In that case in face the offset changes dynamically.
+
   const x = event.clientX - rect.left * 8; //x position within the element.
   const y = event.clientY - rect.top * 2; //y position w
   // const imagePath = `${location.protocol}//${location.hostname}:${location.port}/${cowboy}`;
@@ -44,7 +32,6 @@ function drawImage(el: HTMLCanvasElement, event: MouseEvent) {
   prevX = x;
   prevY = y;
   context.drawImage(image, x, y, 125, 200);
-  memoizedImage = image;
   return context;
 }
 
