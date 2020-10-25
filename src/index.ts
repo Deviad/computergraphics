@@ -14,22 +14,38 @@ const prepareCss = (object: Record<string, string>) => {
   return s;
 };
 
+let memoizedImage: any = null;
+
+// function draw() {
+//   var ctx = document.getElementById("canvas").getContext("2d");
+//   var img = new Image();
+//   img.onload = function () {
+//     ctx.drawImage(img, 0, 0);
+//     ctx.beginPath();
+//     ctx.moveTo(30, 96);
+//     ctx.lineTo(70, 66);
+//     ctx.lineTo(103, 76);
+//     ctx.lineTo(170, 15);
+//     ctx.stroke();
+//   };
+//   img.src = "https://mdn.mozillademos.org/files/5395/backdrop.png";
+// }
+
 function drawImage(el: HTMLCanvasElement, event: MouseEvent) {
   console.log("test");
-  const image = new Image();
+  let image = new Image();
   const context = el.getContext("2d");
+  const rect = (event.target as HTMLElement).getBoundingClientRect();
+  const x = event.clientX - rect.left * 8; //x position within the element.
+  const y = event.clientY - rect.top * 2; //y position w
   // const imagePath = `${location.protocol}//${location.hostname}:${location.port}/${cowboy}`;
   image.src = cowboy;
-  image.onload = () => {
-    context.clearRect(prevX, prevY, 125, 200);
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    const x = event.clientX - rect.left * 8; //x position within the element.
-    const y = event.clientY - rect.top * 2; //y position w
-    prevX = x;
-    prevY = y;
-    context.drawImage(image, x, y, 125, 200);
-    return context;
-  };
+  context.clearRect(prevX, prevY, 125, 200);
+  prevX = x;
+  prevY = y;
+  context.drawImage(image, x, y, 125, 200);
+  memoizedImage = image;
+  return context;
 }
 
 // const memoizedComponent = (fn: Function) => {
@@ -97,6 +113,6 @@ let $rootEl = mount($app, document.getElementById("app"));
 // }, 1000);
 
 console.log($app);
-example4();
+// example4();
 
 // (module as any).hot.accept();
