@@ -2,16 +2,21 @@ const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const APP_DIR = path.resolve(__dirname, "src");
 const paths = require("./paths.js");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const PAGES_DIR = paths.appPublic;
 const fs = require("fs");
-const PAGES_DIR = paths.appPublic
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const PAGES = fs
   .readdirSync(PAGES_DIR)
   .filter((fileName) => fileName.endsWith(".html"));
+const host = process.env.HOST || "127.0.0.1";
+const sockHost = process.env.WDS_SOCKET_HOST;
+const sockPath = process.env.WDS_SOCKET_PATH; // default: '/sockjs-node'
+const sockPort = process.env.WDS_SOCKET_PORT;
 const isProduction = process.env.NODE_ENV === "production";
 const plugins = [
-  new CleanWebpackPlugin(),
   ...PAGES.map(
     (page) =>
       new HtmlWebpackPlugin({
@@ -19,6 +24,28 @@ const plugins = [
         filename: `./${page}`,
       })
   ),
+  new webpack.DefinePlugin({
+    "process.env.ASSET_PATH": JSON.stringify(paths.appPublic),
+  }),
+  // new CopyWebpackPlugin({
+  //   patterns: [
+  //     // Images:
+  //     {
+  //       from: `${paths.appPublic}/assets/img`,
+  //       to: `${paths.appBuild}/assets/img`
+  //     },
+  //     // Fonts:
+  //     {
+  //       from: `${paths.appPublic}/assets/fonts`,
+  //       to: `${paths.appBuild}/assets/fonts`
+  //     },
+  //     // Static (copy to '/'):
+  //     {
+  //       from: `${paths.appPublic}assets/static`,
+  //       to: `${paths.appBuild}/static`
+  //     }
+  //   ]
+  // }),
   new MiniCssExtractPlugin({
     // Options similar to the same options in webpackOptions.output
     // both options are optional
@@ -27,12 +54,14 @@ const plugins = [
       ? "styles/[name].[chunkhash].css"
       : "styles/[id].[name].css",
   }),
+  new webpack.HotModuleReplacementPlugin(),
 ];
-
+// only enable hot in development
 module.exports = {
-  entry: "./src/index.ts",
+  entry: ["webpack/hot/dev-server", paths.appSrc + "/index.ts"],
+  devtool: "inline-source-map",
   target: "web",
-  mode: "production",
+  mode: "development",
   module: {
     rules: [
       {
@@ -64,9 +93,9 @@ module.exports = {
         loader: "url-loader",
         options: {
           limit: 8192,
-            outputPath: "img",
-            publicPath: "public/img",
-            name: "[name].[ext]?[hash]",
+          outputPath: "public/img",
+          publicPath: "public/img",
+          name: "[name].[ext]?[hash]",
         },
       },
     ],
@@ -74,9 +103,25 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
-  output: {
-    filename: "bundle.js",
-    path: paths.appBuild,
-  },
   plugins,
 };
+
+if (!isProduction) {
+  module.exports.devServer = {
+    contentBase: paths.appPublic,
+    port: 3000,
+    disableHostCheck: true,
+    compress: true,
+    host,
+    sockHost,
+    sockPath,
+    sockPort,
+    hot: true,
+    historyApiFallback: {
+      // Paths with dots should still use the history fallback.
+      // See https://github.com/facebook/create-react-app/issues/387.
+      disableDotRule: true,
+      index: paths.publicUrlOrPath,
+    },
+  };
+}

@@ -19,7 +19,7 @@ function drawImage(el: HTMLCanvasElement, event: MouseEvent) {
   const image = new Image();
   const context = el.getContext("2d");
   // const imagePath = `${location.protocol}//${location.hostname}:${location.port}/${cowboy}`;
-  image.src = "https://i.imgur.com/LPuU3Ia.png";
+  image.src = cowboy;
   image.onload = () => {
     context.clearRect(prevX, prevY, 125, 200);
     const rect = (event.target as HTMLElement).getBoundingClientRect();
